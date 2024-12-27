@@ -1,0 +1,47 @@
+version: '3.8'
+
+services:
+  moexservice:
+    build: .
+    container_name: moex
+    command: >
+      sh -c "
+             python manage.py makemigrations &&
+             python manage.py migrate &&
+             python manage.py loaddata fixtures/users.json &&
+             python manage.py collectstatic --noinput &&
+             gunicorn config.wsgi:application --bind 0.0.0.0:8000"
+    ports:
+      - 8000:8000
+    depends_on:
+      - db
+    environment:
+      DATABASE_URL: postgres://moex_user:123@db:5432/moex
+      SECRET_KEY: "django-insecure-ufls+lyweb^t_zxbo_1(ioupd9bmbzgnij*e6wp@g@)9-f7@yp"
+    volumes:
+      - static_volume:/app/staticfiles
+
+  db:
+    image: postgres:latest
+    environment:
+      POSTGRES_DB: moex
+      POSTGRES_USER: moex_user
+      POSTGRES_PASSWORD: 123
+    ports:
+      - "5432:5432"
+    container_name: db
+    volumes:
+      - db_data:/var/lib/postgresql/data
+  # redis:
+  #   image: redis:latest
+  #   container_name: redis
+
+volumes:
+  db_data:
+  static_volume:
+
+    #         sh -c "python manage.py makemigrations &&
+    #         python manage.py migrate &&
+    #         python manage.py test Tickets &&
+    #         python manage.py loaddata fixtures/users.json &&
+    #         python manage.py collectstatic --noinput &&

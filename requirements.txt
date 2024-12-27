@@ -1,0 +1,7 @@
+django
+djangorestframework
+drf_yasg
+gunicorn
+requests
+psycopg2-binary
+dj_database_url

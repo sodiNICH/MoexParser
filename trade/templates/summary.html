@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Сводные данные</title>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+</head>
+<body>
+    <h1>Сводные данные</h1>
+    <table border="1" id="summary-data-table">
+        <thead>
+            <tr>
+                <th>secid</th>
+                <th>regnumber</th>
+                <th>name</th>
+                <th>emitent_title</th>
+                <th>tradedate</th>
+                <th>numtrades</th>
+                <th>open</th>
+            </tr>
+        </thead>
+        <tbody></tbody>
+    </table>
+
+   <script>
+        $(document).ready(function() {
+            $.ajax({
+                url: '/trade/api/v1/security/summary/',
+                method: 'GET',
+                success: function(data) {
+                    const tbody = $('#summary-data-table tbody');
+                    tbody.empty();
+
+                    data.forEach(function(item) {
+                        const row = `
+                            <tr>
+                                <td>${item.secid}</td>
+                                <td>${item.regnumber}</td>
+                                <td>${item.name}</td>
+                                <td>${item.emitent_title}</td>
+                                <td>${item.tradedate_annotated}</td>
+                                <td>${item.numtrades_annotated}</td>
+                                <td>${item.open_annotated}</td>
+                            </tr>
+                        `;
+                        tbody.append(row);
+                    });
+                },
+                error: function() {
+                    alert('Не удалось загрузить данные');
+                }
+            });
+        });
+   </script>

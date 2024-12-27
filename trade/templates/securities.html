@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ценные бумаги</title>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+</head>
+<body>
+    <h1>Список ценных бумаг</h1>
+    <a href="summary/">Сводные данные</a>
+    <button id="importButton">Импортировать данные</button>
+    <div id="loadingMessage" style="display: none; color: green;">Данные собираются...</div>
+    <table border="1" id="securities-table">
+        <thead>
+            <tr>
+                <th>secid</th>
+                <th>regnumber</th>
+                <th>name</th>
+                <th>emitent_title</th>
+                <th>История торгов</th>
+            </tr>
+        </thead>
+        <tbody></tbody>
+    </table>
+
+    <script>
+        function loadSecurityData() {
+            $.ajax({
+                url: '/trade/api/v1/security/',
+                method: 'GET',
+                success: function(data) {
+                    const tbody = $('#securities-table tbody');
+                    tbody.empty();
+
+                    data.forEach(function(security) {
+                        const row = `
+                            <tr>
+                                <td>${security.secid}</td>
+                                <td>${security.regnumber}</td>
+                                <td>${security.name}</td>
+                                <td>${security.emitent_title}</td>
+                                <td><a href="history/?security_id=${security.id}">История торгов</a></td>
+                            </tr>
+                        `;
+                        tbody.append(row);
+                    });
+                },
+                error: function() {
+                    alert('Не удалось загрузить данные');
+                }
+            });
+        }
+        
+        function getCSRFToken() {
+        const cookies = document.cookie.split(';');
+        for (let i = 0; i < cookies.length; i++) {
+            const cookie = cookies[i].trim();
+            if (cookie.startsWith('csrftoken=')) {
+                return cookie.substring('csrftoken='.length);
+            }
+        }
+        return null;
+        }
+
+        $('#importButton').on('click', function() {
+            $('#loadingMessage').show();
+            $.ajax({
+                url: '/trade/api/v1/import_data/',
+                method: 'POST',
+                headers: {
+                    'X-CSRFToken': getCSRFToken()
+                },
+                data: {
+                },
+                success: function(response) {
+                    console.log('Данные успешно загружены:', response);
+                    loadSecurityData();
+                    $('#loadingMessage').hide();
+                },
+                error: function(error) {
+                    console.log('Ошибка при отправке данных:', error);
+                    $('#loadingMessage').hide();
+                }
+            });
+        });
+
+        $(document).ready(function() {
+            loadSecurityData();
+        });
+    </script>
+</body>
+</html>
