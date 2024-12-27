@@ -32,16 +32,7 @@ services:
     container_name: db
     volumes:
       - db_data:/var/lib/postgresql/data
-  # redis:
-  #   image: redis:latest
-  #   container_name: redis
 
 volumes:
   db_data:
   static_volume:
-
-    #         sh -c "python manage.py makemigrations &&
-    #         python manage.py migrate &&
-    #         python manage.py test Tickets &&
-    #         python manage.py loaddata fixtures/users.json &&
-    #         python manage.py collectstatic --noinput &&
